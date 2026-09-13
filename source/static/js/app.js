@@ -59,7 +59,7 @@
     /**
      * 新しい猫を生成してステージに追加
      */
-    function spawnCat(options = {}) {
+     function spawnCat(options = {}) {
         const cat = new Neko(stage, {
             ...options,
             onDuplicate: (parentCat) => {
@@ -68,6 +68,10 @@
             },
             onClick: (catInstance) => {
                 updateStats();
+            },
+            onDropOnHouse: (catInstance) => {
+                // 猫の家にドラッグ＆ドロップされたら1匹画面から消える（退去）
+                handleCatRetire(catInstance);
             }
         });
 
@@ -75,6 +79,28 @@
         updateStats();
         return cat;
     }
+
+    /**
+     * 猫がお家に入って画面から退去する処理
+     */
+    function handleCatRetire(cat) {
+        const house = document.getElementById("cat-house");
+        if (!house) return;
+
+        cat.retireToHouse(house, (retiredCat) => {
+            // 配列から削除
+            cats = cats.filter(c => c.id !== retiredCat.id);
+            updateStats();
+            saveCurrentState(false);
+
+            showToast(`🏠 ${retiredCat.name}がお家に入ってスヤスヤ眠りにつきました💤 (残り: ${cats.length}匹)`, 2500);
+
+            if (cats.length === 0) {
+                showToast("🏠 お家をクリックするか「➕ 猫を呼ぶ」で猫ちゃんを呼び出せます🐾", 3500);
+            }
+        });
+    }
+
 
     /**
      * ダブルクリック時の分裂増殖
@@ -158,8 +184,38 @@
             });
         }
 
+        // 猫の家をクリックしたとき (お家から猫が飛び出してくる)
+        const catHouse = document.getElementById("cat-house");
+        if (catHouse) {
+            catHouse.addEventListener("click", () => {
+                const randomBreed = window.CatAssets ? window.CatAssets.getRandomBreed() : "white";
+                const hRect = catHouse.getBoundingClientRect();
+                const stageRect = stage.getBoundingClientRect();
+
+                const spawnX = (hRect.left - stageRect.left) + hRect.width / 2 - 40;
+                const spawnY = (hRect.top - stageRect.top) + hRect.height / 2;
+
+                const newCat = spawnCat({
+                    breed: randomBreed,
+                    x: spawnX,
+                    y: spawnY,
+                    vx: 2.5 + Math.random() * 2,
+                    vy: -(1.5 + Math.random() * 2)
+                });
+
+                if (window.CatAudio) {
+                    window.CatAudio.playPopSpawnSound();
+                    window.CatAudio.playMeow({ pitchMultiplier: 1.1, type: "kitten" });
+                }
+
+                showToast(`🏠 お家から「${newCat.name}」が元気に飛び出してきました！🐾`, 2200);
+                saveCurrentState(false);
+            });
+        }
+
         // リセットボタン
         const resetBtn = document.getElementById("btn-reset");
+
         if (resetBtn) {
             resetBtn.addEventListener("click", () => {
                 if (confirm("猫ちゃんたちを最初の1匹に戻しますか？")) {

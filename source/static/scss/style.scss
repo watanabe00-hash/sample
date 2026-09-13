@@ -205,6 +205,118 @@ html, body {
     pointer-events: none;
     z-index: 1;
   }
+
+  // --- 猫の家 (キャットハウス) ---
+  .cat-house {
+    position: absolute;
+    left: 48px;
+    bottom: 40px;
+    width: 140px;
+    height: 150px;
+    z-index: 5;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
+
+    &:hover {
+      transform: scale(1.04);
+    }
+
+    &.drag-hover {
+      transform: scale(1.15);
+      animation: house-wobble 0.5s ease-in-out infinite alternate;
+
+      .house-door {
+        box-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+        background: #2b2b36;
+      }
+    }
+
+    .house-roof {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 78px solid transparent;
+      border-right: 78px solid transparent;
+      border-bottom: 55px solid #e76f51;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+      border-radius: 4px;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 6px;
+        left: -68px;
+        width: 0;
+        height: 0;
+        border-left: 68px solid transparent;
+        border-right: 68px solid transparent;
+        border-bottom: 48px solid #f4a261;
+      }
+    }
+
+    .house-body {
+      position: absolute;
+      bottom: 0;
+      left: 10px;
+      right: 10px;
+      height: 96px;
+      background: #faedcd;
+      border-radius: 12px;
+      border: 3px solid #d4a373;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+
+    .house-door {
+      width: 58px;
+      height: 64px;
+      background: #4a3b32;
+      border-radius: 30px 30px 0 0;
+      border: 3px solid #d4a373;
+      border-bottom: none;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s ease;
+
+      .door-inner {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: 0;
+        background: radial-gradient(circle at center, #261e19 0%, #150f0c 100%);
+      }
+    }
+
+    .house-sign {
+      position: absolute;
+      top: 6px;
+      background: #ccd5ae;
+      color: #333d29;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 8px;
+      border-radius: 6px;
+      border: 1px solid #b7b7a4;
+    }
+
+    .house-sleeping-effect {
+      position: absolute;
+      top: -12px;
+      right: 10px;
+      font-size: 20px;
+      opacity: 0.7;
+      animation: float-zzz 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+  }
 }
 
 // --- 猫ちゃん本体 (DOM) ---
@@ -507,3 +619,23 @@ html, body {
   40% { transform: translateY(-24px) scale(1.08); }
   100% { transform: translateY(0) scale(1); }
 }
+
+// 帰宅・退去アニメーション (お家へ吸い込まれる)
+.cat-retiring {
+  pointer-events: none !important;
+  transition: all 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) !important;
+  transform-origin: center center;
+  filter: blur(0.5px);
+}
+
+@keyframes house-wobble {
+  0% { transform: scale(1.15) rotate(-3deg); }
+  100% { transform: scale(1.15) rotate(3deg); }
+}
+
+@keyframes float-zzz {
+  0% { transform: translate(0, 0) scale(0.8); opacity: 0.2; }
+  50% { transform: translate(6px, -10px) scale(1.1); opacity: 0.9; }
+  100% { transform: translate(12px, -20px) scale(0.8); opacity: 0; }
+}
+

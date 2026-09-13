@@ -35,6 +35,7 @@ class Neko {
         // イベントコールバック
         this.onDuplicate = options.onDuplicate || null;
         this.onClick = options.onClick || null;
+        this.onDropOnHouse = options.onDropOnHouse || null;
 
         // DOM構築
         this.element = null;
@@ -64,7 +65,7 @@ class Neko {
         wrapper.id = this.id;
         wrapper.setAttribute("role", "button");
         wrapper.setAttribute("tabindex", "0");
-        wrapper.setAttribute("title", `${this.name} (${this.breed}) - クリック:鳴く / ダブルクリック:増える`);
+        wrapper.setAttribute("title", `${this.name} (${this.breed}) - クリック:鳴く / ダブルクリック:増える / お家へドラッグ:退去`);
 
         // 猫本体のSVG
         const svgContent = window.CatAssets ? window.CatAssets.createCatSvgString(this.breed) : "";
@@ -157,16 +158,86 @@ class Neko {
         this.x = clientX - this.dragOffsetX;
         this.y = clientY - this.dragOffsetY;
         this.updatePosition();
+
+        // 猫の家の上にあるかチェックしてハイライト
+        this.checkHouseHover();
+    }
+
+    checkHouseHover() {
+        const house = document.getElementById("cat-house");
+        if (!house) return false;
+
+        const hRect = house.getBoundingClientRect();
+        const catCenterX = this.x + 55 * this.scale;
+        const catCenterY = this.y + 45 * this.scale;
+
+        const isOverHouse = (
+            catCenterX >= hRect.left &&
+            catCenterX <= hRect.right &&
+            catCenterY >= hRect.top &&
+            catCenterY <= hRect.bottom
+        );
+
+        if (isOverHouse) {
+            house.classList.add("drag-hover");
+        } else {
+            house.classList.remove("drag-hover");
+        }
+        return isOverHouse;
     }
 
     endDrag() {
         this.isDragging = false;
         this.element.classList.remove("is-dragging");
+
+        const house = document.getElementById("cat-house");
+        if (house) {
+            house.classList.remove("drag-hover");
+        }
+
+        // 猫の家にドロップされたか確認
+        if (this.checkHouseHover()) {
+            if (this.onDropOnHouse) {
+                this.onDropOnHouse(this);
+                return;
+            }
+        }
+
         this.state = "walking";
         this.vx = (Math.random() - 0.5) * 4;
         this.vy = (Math.random() - 0.5) * 3;
         this.stateTimer = 0;
     }
+
+    /**
+     * 猫の家に入って画面から退去するアニメーション
+     */
+    retireToHouse(targetHouseElement, onComplete) {
+        this.state = "retiring";
+        this.isDragging = false;
+        this.element.classList.add("cat-retiring");
+        this.showSpeechBubble("おやすみにゃ〜💤");
+
+        if (window.CatAudio) {
+            window.CatAudio.playPurrSound(window.CatAudio.getAudioContext ? window.CatAudio.getAudioContext() : null, 0);
+        }
+
+        const hRect = targetHouseElement.getBoundingClientRect();
+        const stageRect = this.stage.getBoundingClientRect();
+        const doorX = (hRect.left - stageRect.left) + hRect.width / 2 - (55 * this.scale);
+        const doorY = (hRect.top - stageRect.top) + hRect.height * 0.55;
+
+        // ドアに向かって吸い込まれる
+        this.element.style.transition = "all 0.55s cubic-bezier(0.55, 0.085, 0.68, 0.53)";
+        this.element.style.transform = `translate3d(${doorX}px, ${doorY}px, 0) scale(0.18)`;
+        this.element.style.opacity = "0";
+
+        setTimeout(() => {
+            this.destroy();
+            if (onComplete) onComplete(this);
+        }, 550);
+    }
+
 
     handleClick(e) {
         // 鳴き声再生
