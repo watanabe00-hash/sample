@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫ちゃんズ - 自由気ままな猫たちのお部屋</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="background-pattern"></div>
+
+    <div class="app-container">
+        <!-- ヘッダー / コントロールバー -->
+        <header class="header-bar">
+            <div class="logo-section">
+                <span class="logo-icon">🐾</span>
+                <h1>猫ちゃんズ</h1>
+                <span id="cat-count-display" class="badge-count">1 匹</span>
+            </div>
+            
+            <div class="controls-section">
+                <button id="btn-add-cat" class="btn btn-secondary" title="新しい猫を呼びます">
+                    ➕ 猫を呼ぶ
+                </button>
+                <button id="btn-snack" class="btn btn-secondary" title="お魚のおやつをあげます (Spaceキー)">
+                    🐟 おやつ
+                </button>
+                <button id="btn-toy" class="btn btn-secondary" title="マウスで猫ちゃんたちと遊びます">
+                    🪶 ねこじゃらし
+                </button>
+                <button id="btn-cat-list" class="btn btn-secondary" title="猫ちゃんたちのプロフィール一覧">
+                    📖 猫図鑑
+                </button>
+                <button id="btn-save" class="btn btn-primary" title="現在の状態をJSONで保存 (Ctrl+S)">
+                    💾 セーブ
+                </button>
+                <button id="btn-reset" class="btn btn-secondary" title="最初の1匹に戻す">
+                    🔄 リセット
+                </button>
+            </div>
+        </header>
+
+        <!-- メインステージ -->
+        <main id="cat-stage" class="cat-stage">
+            <!-- 部屋のインテリア装飾 -->
+            <div class="stage-rug"></div>
+            <div class="stage-cushion"></div>
+        </main>
+    </div>
+
+    <!-- ねこじゃらしポインター -->
+    <div id="toy-pointer">🪶</div>
+
+    <!-- トースト通知コンテナ -->
+    <div id="toast-container"></div>
+
+    <!-- 猫図鑑モーダル -->
+    <div id="cat-list-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📖 一緒にいる猫ちゃんズ</h3>
+                <button id="btn-close-modal" class="btn btn-secondary">✕ 閉じる</button>
+            </div>
+            <div id="cat-modal-cards" class="cat-cards-grid">
+                <!-- 動的に生成されます -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript モジュール (機能単位) -->
+    <script src="js/assets.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/cat.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
